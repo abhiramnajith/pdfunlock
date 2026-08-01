@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "pdfunlock-scaffold",
+  "productName": "pdfunlock",
   "version": "0.1.0",
   "identifier": "com.pdfunlock.app",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "pdfunlock-scaffold",
+        "title": "pdfunlock",
         "width": 800,
         "height": 600
       }

@@ -2346,7 +2346,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "pdfunlock-scaffold"
+name = "pdfunlock"
 version = "0.1.0"
 dependencies = [
  "serde",

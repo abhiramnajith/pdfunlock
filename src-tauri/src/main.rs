@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    pdfunlock_scaffold_lib::run()
+    pdfunlock_lib::run()
 }
