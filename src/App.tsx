@@ -14,17 +14,36 @@ function nameFromPath(path: string): string {
 
 const STATUS_LABEL: Record<Row["status"], string> = {
   ready: "Ready",
-  working: "Working…",
+  working: "Working",
   done: "Done",
   skipped: "Skipped",
   error: "Error",
 };
+
+/** Open-padlock glyph. The shackle lifts via CSS when its `.dropzone` ancestor is drag-active. */
+function LockGlyph() {
+  return (
+    <svg
+      className="lock-icon"
+      viewBox="0 0 64 64"
+      width="52"
+      height="52"
+      aria-hidden="true"
+    >
+      <path className="lock-shackle" d="M22 30 V20 A10 10 0 0 1 42 20 V26" />
+      <rect className="lock-body" x="14" y="28" width="36" height="28" rx="8" />
+      <circle className="lock-keyhole" cx="32" cy="40" r="3.2" />
+      <rect className="lock-keyhole" x="30.4" y="40" width="3.2" height="8" rx="1.6" />
+    </svg>
+  );
+}
 
 function App() {
   const [rows, setRows] = useState<Row[]>([]);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const rowsRef = useRef(rows);
   rowsRef.current = rows;
 
@@ -79,36 +98,49 @@ function App() {
   }
 
   async function unlockAll() {
-    const toProcess = rowsRef.current.filter((r) => r.status === "ready");
-    for (const row of toProcess) {
-      patchRow(row.id, { status: "working" });
-      const patch = await unlockOne(row.path, password, invoke);
-      patchRow(row.id, patch);
+    if (isProcessing) return;
+    setIsProcessing(true);
+    try {
+      const toProcess = rowsRef.current.filter((r) => r.status === "ready");
+      for (const row of toProcess) {
+        patchRow(row.id, { status: "working" });
+        const patch = await unlockOne(row.path, password, invoke);
+        patchRow(row.id, patch);
+      }
+    } finally {
+      setIsProcessing(false);
     }
   }
 
   const readyCount = rows.filter((r) => r.status === "ready").length;
-  const canUnlock = readyCount > 0 && password.length > 0;
+  const doneCount = rows.filter((r) => r.status === "done").length;
+  const canUnlock = readyCount > 0 && password.length > 0 && !isProcessing;
 
   return (
     <main className="app">
       <header className="app-header">
+        <p className="eyebrow">Local &middot; on-device &middot; no upload</p>
         <h1>PDFUnlock</h1>
-        <p className="subtitle">Remove passwords from PDF files, locally.</p>
+        <p className="subtitle">
+          Strips passwords from PDF files. Nothing ever leaves this Mac.
+        </p>
       </header>
 
       <section
         className={`dropzone${dragActive ? " dropzone--active" : ""}`}
       >
-        <p>Drag &amp; drop PDF files here</p>
+        <LockGlyph />
+        <p className="dropzone-title">Drop PDFs here to unlock them</p>
         <p className="dropzone-or">or</p>
         <button type="button" onClick={browse}>
-          Browse…
+          Browse&hellip;
         </button>
       </section>
 
       <section className="password-row">
-        <label htmlFor="password-input">Password</label>
+        <label htmlFor="password-input" className="field-label">
+          Password
+        </label>
         <div className="password-field">
           <input
             id="password-input"
@@ -116,6 +148,7 @@ function App() {
             value={password}
             onChange={(e) => setPassword(e.currentTarget.value)}
             placeholder="Enter PDF password"
+            autoComplete="off"
           />
           <button
             type="button"
@@ -131,13 +164,22 @@ function App() {
           disabled={!canUnlock}
           onClick={unlockAll}
         >
-          Unlock all
+          {isProcessing ? "Unlocking…" : "Unlock all"}
+          {!isProcessing && readyCount > 0 && (
+            <span className="count-readout">{readyCount}</span>
+          )}
         </button>
       </section>
 
       <section className="rows">
-        {rows.length === 0 && (
-          <p className="empty-state">No files added yet.</p>
+        {rows.length === 0 ? (
+          <p className="empty-state">
+            No files queued yet &mdash; drop a PDF above to get started.
+          </p>
+        ) : (
+          <p className="rows-summary">
+            {rows.length} queued &middot; {doneCount} done
+          </p>
         )}
         {rows.map((row) => (
           <div className="file-row" key={row.id}>

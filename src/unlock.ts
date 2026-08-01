@@ -17,6 +17,7 @@ export function errorMessage(e: UnlockError): string {
     case "Corrupt": return "Could not read PDF";
     case "Io": return e.message ?? "File error";
     case "Engine": return e.message ?? "Unexpected error";
+    default: return "Unexpected error";
   }
 }
 

@@ -1,12 +1,55 @@
+/* ---------------------------------------------------------------------
+   PDFUnlock — "precision desk instrument, local & private"
+   Cool porcelain paper + near-ink text + a single petrol-teal signal
+   color for the primary action, focus rings, drag-active state, and
+   the done pill. Monospace face doubles as an instrument readout for
+   labels, counts and status pills.
+   --------------------------------------------------------------------- */
+
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  color-scheme: light dark;
+
+  --paper: #eef2f1;
+  --paper-raised: #ffffff;
+  --ink: #101819;
+  --ink-soft: rgba(16, 24, 25, 0.62);
+  --ink-faint: rgba(16, 24, 25, 0.4);
+  --border: rgba(16, 24, 25, 0.12);
+  --border-strong: rgba(16, 24, 25, 0.24);
+
+  --signal: #0c6e68;
+  --signal-strong: #095650;
+  --signal-tint: rgba(12, 110, 104, 0.1);
+  --signal-tint-strong: rgba(12, 110, 104, 0.2);
+  --signal-ink: #f2fbfa;
+  --count-badge-bg: rgba(255, 255, 255, 0.24);
+
+  --amber-bg: rgba(255, 176, 32, 0.18);
+  --amber-ink: #8a5a00;
+  --slate-bg: rgba(100, 116, 139, 0.16);
+  --slate-ink: #3f4c60;
+  --red-bg: rgba(220, 38, 38, 0.12);
+  --red-ink: #a3261e;
+
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-sm: 9px;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+    Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas,
+    monospace;
+
+  --shadow-sm: 0 1px 2px rgba(16, 24, 25, 0.06);
+  --shadow-md: 0 10px 28px rgba(16, 24, 25, 0.08);
+
+  font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.5;
   font-weight: 400;
-  color-scheme: light dark;
 
-  color: #0f0f0f;
-  background-color: #f6f6f6;
+  color: var(--ink);
+  background-color: var(--paper);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -15,64 +58,169 @@
   -webkit-text-size-adjust: 100%;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0e1516;
+    --paper-raised: #18201f;
+    --ink: #eef3f1;
+    --ink-soft: rgba(238, 243, 241, 0.64);
+    --ink-faint: rgba(238, 243, 241, 0.4);
+    --border: rgba(238, 243, 241, 0.14);
+    --border-strong: rgba(238, 243, 241, 0.26);
+
+    --signal: #3ecfc0;
+    --signal-strong: #5cdbcd;
+    --signal-tint: rgba(62, 207, 192, 0.14);
+    --signal-tint-strong: rgba(62, 207, 192, 0.24);
+    --signal-ink: #04211e;
+    --count-badge-bg: rgba(4, 33, 30, 0.2);
+
+    --amber-bg: rgba(255, 191, 71, 0.18);
+    --amber-ink: #ffcf7d;
+    --slate-bg: rgba(148, 163, 184, 0.18);
+    --slate-ink: #c4cede;
+    --red-bg: rgba(248, 113, 113, 0.16);
+    --red-ink: #ffb4ac;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 14px 32px rgba(0, 0, 0, 0.45);
+  }
+}
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  background-color: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
 }
 
 .app {
-  max-width: 640px;
+  max-width: 680px;
   margin: 0 auto;
-  padding: 2.5rem 1.5rem 3rem;
+  padding: 3.5rem 2rem 4rem;
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: 2.5rem;
+}
+
+/* ---------- Header ---------- */
+
+.app-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.eyebrow {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--signal);
 }
 
 .app-header h1 {
-  margin: 0 0 0.25rem;
-  font-size: 1.75rem;
+  margin: 0;
+  font-size: 2.1rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
 .subtitle {
   margin: 0;
-  opacity: 0.7;
+  color: var(--ink-soft);
+  font-size: 1.02rem;
 }
+
+/* ---------- Drop zone (the hero / thesis) ---------- */
 
 .dropzone {
-  border: 2px dashed #8a8a8a;
-  border-radius: 12px;
-  padding: 2.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 3.25rem 1.5rem;
   text-align: center;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  background-color: var(--paper-raised);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 220ms ease, background-color 220ms ease,
+    box-shadow 220ms ease;
 }
 
-.dropzone p {
-  margin: 0.25rem 0;
+.lock-icon {
+  margin-bottom: 0.15rem;
 }
 
-.dropzone-or {
-  opacity: 0.6;
-  font-size: 0.9em;
+.lock-shackle {
+  fill: none;
+  stroke: var(--ink-faint);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transform-origin: 32px 30px;
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), stroke 220ms ease;
+}
+
+.lock-body {
+  fill: var(--ink-faint);
+  transition: fill 220ms ease;
+}
+
+.lock-keyhole {
+  fill: var(--paper-raised);
 }
 
 .dropzone--active {
-  border-color: #396cd8;
-  background-color: rgba(57, 108, 216, 0.08);
+  border-color: var(--signal);
+  background-color: var(--signal-tint);
+  box-shadow: 0 0 0 4px var(--signal-tint-strong), var(--shadow-sm);
 }
+
+.dropzone--active .lock-shackle {
+  transform: translateY(-7px) rotate(-6deg);
+  stroke: var(--signal);
+}
+
+.dropzone--active .lock-body {
+  fill: var(--signal);
+}
+
+.dropzone-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.dropzone-or {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+}
+
+/* ---------- Password + action ---------- */
 
 .password-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.9rem;
 }
 
-.password-row label {
-  font-weight: 500;
+.field-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
 }
 
 .password-field {
@@ -87,30 +235,39 @@ body {
   min-width: 10rem;
 }
 
+/* ---------- Base form controls ---------- */
+
 input,
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.1em;
+  font-family: var(--font-sans);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  padding: 0.65em 1.15em;
   font-size: 0.95em;
   font-weight: 500;
-  font-family: inherit;
-  color: #0f0f0f;
-  background-color: #ffffff;
-  transition: border-color 0.2s;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  color: var(--ink);
+  background-color: var(--paper-raised);
+  transition: border-color 160ms ease, background-color 160ms ease,
+    box-shadow 160ms ease, opacity 160ms ease, transform 120ms ease;
+  box-shadow: var(--shadow-sm);
+  outline: none;
 }
 
 input {
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+  box-shadow: inset 0 1px 2px rgba(16, 24, 25, 0.06);
 }
 
 button {
   cursor: pointer;
+  font-weight: 600;
 }
 
 button:hover:not(:disabled) {
-  border-color: #396cd8;
+  border-color: var(--border-strong);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 button:disabled {
@@ -118,46 +275,90 @@ button:disabled {
   cursor: not-allowed;
 }
 
+input:focus-visible,
+button:focus-visible {
+  border-color: var(--signal);
+  box-shadow: 0 0 0 3px var(--signal-tint-strong);
+}
+
 .primary-button {
-  background-color: #396cd8;
-  color: #ffffff;
+  background-color: var(--signal);
+  border-color: var(--signal);
+  color: var(--signal-ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
 }
 
 .primary-button:hover:not(:disabled) {
-  border-color: #274a99;
+  background-color: var(--signal-strong);
+  border-color: var(--signal-strong);
+}
+
+.primary-button:disabled {
+  background-color: var(--border);
+  border-color: var(--border);
+  color: var(--ink-faint);
+  opacity: 1;
+}
+
+.count-readout {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  background-color: var(--count-badge-bg);
+  padding: 0.1em 0.55em;
+  border-radius: 999px;
 }
 
 .ghost-button {
   background-color: transparent;
   box-shadow: none;
-  border: 1px solid #8a8a8a;
+  border-color: var(--border);
+  color: var(--ink-soft);
 }
 
-input,
-button {
-  outline: none;
+.ghost-button:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  color: var(--ink);
 }
+
+/* ---------- Results ---------- */
 
 .rows {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.6rem;
+}
+
+.rows-summary {
+  margin: 0 0 0.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
 }
 
 .empty-state {
-  opacity: 0.6;
+  margin: 0;
+  color: var(--ink-faint);
   text-align: center;
-  padding: 1rem 0;
+  padding: 1.5rem 0;
+  font-size: 0.95rem;
 }
 
 .file-row {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.9rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.6);
+  gap: 0.85rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--paper-raised);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 200ms ease, background-color 200ms ease;
 }
 
 .file-name {
@@ -165,70 +366,70 @@ button {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .file-detail {
-  opacity: 0.65;
-  font-size: 0.85em;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .status-pill {
-  font-size: 0.78em;
-  font-weight: 600;
-  padding: 0.2em 0.7em;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.3em 0.75em;
   border-radius: 999px;
   white-space: nowrap;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.05em;
+  transition: background-color 220ms ease, color 220ms ease;
 }
 
 .status-pill--ready {
-  background-color: #e0e0e0;
-  color: #333;
+  background-color: var(--border);
+  color: var(--ink-soft);
 }
 
 .status-pill--working {
-  background-color: #fff2cc;
-  color: #8a6d00;
+  background-color: var(--amber-bg);
+  color: var(--amber-ink);
+  animation: pulse 1.3s ease-in-out infinite;
 }
 
 .status-pill--done {
-  background-color: #d7f5df;
-  color: #1c7a37;
+  background-color: var(--signal);
+  color: var(--signal-ink);
 }
 
 .status-pill--skipped {
-  background-color: #e0e7ff;
-  color: #3947a1;
+  background-color: var(--slate-bg);
+  color: var(--slate-ink);
 }
 
 .status-pill--error {
-  background-color: #fbdada;
-  color: #a3231f;
+  background-color: var(--red-bg);
+  color: var(--red-ink);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: #f6f6f6;
-    background-color: #2f2f2f;
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
   }
-
-  input,
-  button {
-    color: #ffffff;
-    background-color: #0f0f0f98;
+  50% {
+    opacity: 0.55;
   }
+}
 
-  .ghost-button {
-    border-color: #5a5a5a;
-  }
-
-  .file-row {
-    background-color: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.12);
-  }
-
-  .dropzone {
-    border-color: #5a5a5a;
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
