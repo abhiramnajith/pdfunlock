@@ -1,0 +1,234 @@
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+
+  color: #0f0f0f;
+  background-color: #f6f6f6;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.app-header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.75rem;
+}
+
+.subtitle {
+  margin: 0;
+  opacity: 0.7;
+}
+
+.dropzone {
+  border: 2px dashed #8a8a8a;
+  border-radius: 12px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.dropzone p {
+  margin: 0.25rem 0;
+}
+
+.dropzone-or {
+  opacity: 0.6;
+  font-size: 0.9em;
+}
+
+.dropzone--active {
+  border-color: #396cd8;
+  background-color: rgba(57, 108, 216, 0.08);
+}
+
+.password-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.password-row label {
+  font-weight: 500;
+}
+
+.password-field {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1 1 auto;
+}
+
+.password-field input {
+  flex: 1 1 auto;
+  min-width: 10rem;
+}
+
+input,
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.1em;
+  font-size: 0.95em;
+  font-weight: 500;
+  font-family: inherit;
+  color: #0f0f0f;
+  background-color: #ffffff;
+  transition: border-color 0.2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+input {
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+button {
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  border-color: #396cd8;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primary-button {
+  background-color: #396cd8;
+  color: #ffffff;
+}
+
+.primary-button:hover:not(:disabled) {
+  border-color: #274a99;
+}
+
+.ghost-button {
+  background-color: transparent;
+  box-shadow: none;
+  border: 1px solid #8a8a8a;
+}
+
+input,
+button {
+  outline: none;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.empty-state {
+  opacity: 0.6;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.file-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.file-name {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-detail {
+  opacity: 0.65;
+  font-size: 0.85em;
+}
+
+.status-pill {
+  font-size: 0.78em;
+  font-weight: 600;
+  padding: 0.2em 0.7em;
+  border-radius: 999px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.status-pill--ready {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.status-pill--working {
+  background-color: #fff2cc;
+  color: #8a6d00;
+}
+
+.status-pill--done {
+  background-color: #d7f5df;
+  color: #1c7a37;
+}
+
+.status-pill--skipped {
+  background-color: #e0e7ff;
+  color: #3947a1;
+}
+
+.status-pill--error {
+  background-color: #fbdada;
+  color: #a3231f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #f6f6f6;
+    background-color: #2f2f2f;
+  }
+
+  input,
+  button {
+    color: #ffffff;
+    background-color: #0f0f0f98;
+  }
+
+  .ghost-button {
+    border-color: #5a5a5a;
+  }
+
+  .file-row {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .dropzone {
+    border-color: #5a5a5a;
+  }
+}
