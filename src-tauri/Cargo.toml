@@ -3,6 +3,7 @@ name = "pdfunlock"
 version = "0.1.0"
 description = "Remove passwords from PDFs you know the password to"
 authors = ["abhiramnajith"]
+license-file = "../LICENSE"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

@@ -107,4 +107,14 @@ The release `.app` ships qpdf as a self-contained sidecar (no system/brew qpdf r
 
 ## License
 
-MIT
+**MIT + [Commons Clause](https://commonsclause.com/)** — source-available.
+
+You may use, copy, modify, and distribute PDFUnlock freely, including within a
+business. You may **not "Sell" it** — i.e., provide it (or a product/service
+whose value derives substantially from it, including paid hosting or support as
+the product) to third parties for a fee — without permission. Copyright remains
+with the author.
+
+For a commercial/resale license, open an issue to get in touch.
+
+This is source-available, not OSI "open source." Not legal advice.
