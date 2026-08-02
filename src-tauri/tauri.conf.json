@@ -6,7 +6,7 @@
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "bash scripts/vendor-qpdf.sh && npm run build",
+    "beforeBuildCommand": "bash scripts/prepare-qpdf-sidecar.sh && npm run build",
     "frontendDist": "../dist"
   },
   "app": {
@@ -31,7 +31,6 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "externalBin": ["binaries/qpdf"],
-    "resources": ["binaries/*.dylib"]
+    "externalBin": ["binaries/qpdf"]
   }
 }
