@@ -1,0 +1,105 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+# Least privilege by default; jobs elevate only what they need.
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build ${{ matrix.rust_target }}
+    environment: release
+    permissions:
+      contents: write # create the draft release and upload installers
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: macos-14, rust_target: aarch64-apple-darwin, args: "--target aarch64-apple-darwin" }
+          - { os: macos-15-intel, rust_target: x86_64-apple-darwin, args: "--target x86_64-apple-darwin" }
+          - { os: ubuntu-22.04, rust_target: x86_64-unknown-linux-gnu, args: "" }
+          - { os: ubuntu-24.04-arm, rust_target: aarch64-unknown-linux-gnu, args: "" }
+          - { os: windows-latest, rust_target: x86_64-pc-windows-msvc, args: "" }
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install Linux build dependencies
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev libgtk-3-dev librsvg2-dev \
+            libayatana-appindicator3-dev patchelf qpdf file
+      - name: Install macOS qpdf
+        if: startsWith(matrix.os, 'macos')
+        run: brew install qpdf
+      # Windows qpdf is fetched + checksum-verified by the vendor script,
+      # which runs via Tauri's beforeBuildCommand (under Git Bash).
+      - uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master
+        with:
+          toolchain: "1.91.0"
+          targets: ${{ matrix.rust_target }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+          cache: "npm"
+      - run: npm ci
+      - uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # action-v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "PDFUnlock ${{ github.ref_name }}"
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
+
+  checksums:
+    name: Checksums + provenance
+    needs: build
+    environment: release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write # upload SHA256SUMS to the release
+      id-token: write # provenance signing
+      attestations: write # provenance
+    steps:
+      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        with:
+          egress-policy: audit
+      - name: Download release installers
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p dist
+          # Pull every asset attached to the draft release for this tag,
+          # skipping any checksum file from a previous run.
+          gh release download "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" --dir dist --pattern '*' --clobber
+          rm -f dist/SHA256SUMS
+          ls -la dist
+      - uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+        with:
+          subject-path: "dist/*"
+      - name: Generate SHA256SUMS
+        run: |
+          # Generate outside dist/ so the glob can't include the sums file itself.
+          ( cd dist && sha256sum -- * ) > SHA256SUMS
+          cat SHA256SUMS
+      - name: Upload SHA256SUMS to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" SHA256SUMS --clobber
