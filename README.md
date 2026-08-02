@@ -1,8 +1,8 @@
 # PDFUnlock
 
-A small, private macOS desktop app that **removes password protection from PDFs you know the password to**. Drop in one or more locked PDFs, enter the password, and get decrypted copies saved right next to the originals.
+A small, private **cross-platform** desktop app (macOS, Windows, Linux) that **removes password protection from PDFs you know the password to**. Drop in one or more locked PDFs, enter the password, and get decrypted copies saved right next to the originals.
 
-Everything happens **entirely on your Mac** — no file ever leaves the device, and there is no network access.
+Everything happens **entirely on your device** — no file ever leaves it, and there is no network access.
 
 > PDFUnlock only *removes a password you already know*. It does not recover, guess, or brute-force unknown passwords.
 
@@ -14,7 +14,7 @@ Everything happens **entirely on your Mac** — no file ever leaves the device, 
 - **Handles every common scheme** — RC4 (40/128-bit), AES-128, and AES-256, powered by [qpdf](https://qpdf.sourceforge.io/).
 - **Skips files that aren't encrypted** (with a note) and keeps going if one file has the wrong password.
 - **Polished light/dark UI** that follows your system appearance.
-- **Reveal in Finder** for each unlocked file.
+- **Reveal in your file manager** (Finder / Explorer / Files) for each unlocked file.
 
 ## How it works
 
@@ -81,7 +81,7 @@ downloaded automatically by the vendor script.
 2. Drag one or more password-protected PDFs onto the drop zone (or click **Browse**).
 3. Type the password shared by those files.
 4. Click **Unlock all**.
-5. Each row shows its result; click **Reveal in Finder** on an unlocked file to jump to `…-unlocked.pdf`.
+5. Each row shows its result; click **Reveal** on an unlocked file to jump to `…-unlocked.pdf` in your file manager.
 
 ---
 
