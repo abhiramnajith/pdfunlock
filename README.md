@@ -24,50 +24,56 @@ PDFUnlock is a [Tauri v2](https://tauri.app/) app — a Rust backend with a Reac
 
 ## Install
 
-### Requirements
+Download the latest build for your OS from the
+[**Releases**](https://github.com/abhiramnajith/pdfunlock/releases) page. qpdf is
+bundled inside every download — there's nothing else to install.
 
-- **macOS** on Apple Silicon (arm64).
+| OS | Download | First-run note |
+|----|----------|----------------|
+| macOS (Apple Silicon) | `pdfunlock_*_aarch64.dmg` | Unsigned: right-click the app → **Open** → **Open** |
+| macOS (Intel) | `pdfunlock_*_x64.dmg` | Same right-click → **Open** |
+| Windows | `pdfunlock_*_x64-setup.exe` or `.msi` | SmartScreen: **More info → Run anyway** |
+| Linux (x86-64 / arm64) | `.AppImage`, `.deb`, or `.rpm` | AppImage: `chmod +x pdfunlock_*.AppImage`, then run it |
 
-There is no prebuilt release yet, so install by building from source (below). Building produces a normal macOS `.app` you can move to `/Applications`.
+Builds are **not code-signed**, hence the one-time OS warning above.
+
+### Verify your download (recommended)
+
+Every release includes a `SHA256SUMS` file and signed build-provenance
+attestations:
+
+```bash
+# Checksum — compare against the SHA256SUMS file on the release
+shasum -a 256 <downloaded-file>          # macOS
+sha256sum <downloaded-file>              # Linux
+
+# Provenance — proves the file came from this repo's Release workflow
+# (needs the GitHub CLI: https://cli.github.com)
+gh attestation verify <downloaded-file> --repo abhiramnajith/pdfunlock
+```
 
 ### Build from source
 
-**1. Install the toolchain**
+Prefer building yourself? You'll need Rust, Node 20+, and qpdf.
 
 ```bash
-# Rust (if you don't have it): https://rustup.rs
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-# Node.js 20+ and qpdf + python3 (used only when building)
-brew install node qpdf python3
-
-# Tauri CLI
+# Toolchain
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh   # Rust
+brew install node qpdf python3                                    # macOS deps
 cargo install tauri-cli --version "^2.0" --locked
-```
 
-**2. Clone and install dependencies**
-
-```bash
+# Build
 git clone https://github.com/abhiramnajith/pdfunlock.git
 cd pdfunlock
 npm install
-```
-
-**3. Build the app**
-
-```bash
 npm run tauri build
 ```
 
-The finished app is at:
-
-```
-src-tauri/target/release/bundle/macos/pdfunlock.app
-```
-
-Drag it to your `/Applications` folder. The `.app` bundles its own copy of `qpdf`, so it runs on any Mac without needing `qpdf` installed.
-
-> Because this build is not code-signed, the first time you open it macOS may warn that it's from an unidentified developer. Right-click the app → **Open** → **Open**, or allow it under **System Settings → Privacy & Security**.
+`npm run tauri build` runs `scripts/prepare-qpdf-sidecar.sh` automatically to
+vendor qpdf into the bundle. The finished installer lands under
+`src-tauri/target/release/bundle/`. On Linux the build also needs
+`patchelf` and the usual Tauri/WebKitGTK dev packages; on Windows qpdf is
+downloaded automatically by the vendor script.
 
 ## Usage
 
@@ -96,14 +102,22 @@ cd src-tauri && cargo test
 
 - [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
 
-### Building a release bundle
+### Releases & the qpdf sidecar
 
-The release `.app` ships qpdf as a self-contained sidecar (no system/brew qpdf required at runtime). To build it, the build machine needs:
+Every build bundles qpdf as a self-contained sidecar, so end users need no
+system qpdf. `npm run tauri build` runs `scripts/prepare-qpdf-sidecar.sh`
+(wired as `beforeBuildCommand`), which dispatches by OS:
 
-- `brew install qpdf`
-- `python3` available on PATH
+- **macOS** — `vendor-qpdf-macos.sh`: copies the dylibs and rewrites load paths (`install_name_tool`). Needs `brew install qpdf` + `python3`.
+- **Linux** — `vendor-qpdf-linux.sh`: copies the `.so`s and sets `RPATH=$ORIGIN` (`patchelf`). Needs `qpdf` + `patchelf`.
+- **Windows** — `vendor-qpdf-windows.sh`: downloads the official qpdf build, verifies its SHA-256, and copies `qpdf.exe` + DLLs.
 
-`npm run tauri build` runs `scripts/vendor-qpdf.sh` automatically (wired in as `beforeBuildCommand`), which vendors qpdf and its non-system dylibs into `src-tauri/binaries/` (gitignored — regenerated on every build, not checked into the repo).
+`src-tauri/binaries/` is gitignored and regenerated on every build.
+
+Releases are produced by **GitHub Actions** (`.github/workflows/release.yml`)
+on any `v*` tag: it builds all five targets, attaches the installers plus a
+`SHA256SUMS` file, and generates build-provenance attestations. `ci.yml` runs
+tests, audits, and CodeQL on every push/PR.
 
 ## License
 
