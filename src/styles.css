@@ -41,7 +41,6 @@
     monospace;
 
   --shadow-sm: 0 1px 2px rgba(16, 24, 25, 0.06);
-  --shadow-md: 0 10px 28px rgba(16, 24, 25, 0.08);
 
   font-family: var(--font-sans);
   font-size: 16px;
@@ -83,7 +82,6 @@
     --red-ink: #ffb4ac;
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 14px 32px rgba(0, 0, 0, 0.45);
   }
 }
 

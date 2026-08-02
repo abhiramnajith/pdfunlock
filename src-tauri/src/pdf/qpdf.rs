@@ -55,12 +55,16 @@ pub fn decrypt(qpdf: &Path, input: &Path, output: &Path, password: &str) -> Resu
         .map_err(|e| DecryptError::Engine(format!("failed to run qpdf: {e}")))?;
 
     // qpdf --password-file reads the first line, stripping the trailing newline.
-    child
+    if let Err(e) = child
         .stdin
         .take()
         .expect("stdin piped")
         .write_all(format!("{password}\n").as_bytes())
-        .map_err(|e| DecryptError::Engine(format!("failed to send password: {e}")))?;
+    {
+        // Reap the child so a failed write can't leave a zombie behind.
+        let _ = child.wait();
+        return Err(DecryptError::Engine(format!("failed to send password: {e}")));
+    }
 
     let out = child
         .wait_with_output()

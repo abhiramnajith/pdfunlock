@@ -68,7 +68,7 @@ function App() {
 
   useEffect(() => {
     const unlistenPromise = getCurrentWebview().onDragDropEvent((event) => {
-      if (event.payload.type === "over") {
+      if (event.payload.type === "enter" || event.payload.type === "over") {
         setDragActive(true);
       } else if (event.payload.type === "drop") {
         setDragActive(false);

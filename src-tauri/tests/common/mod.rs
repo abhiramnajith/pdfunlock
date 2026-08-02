@@ -33,7 +33,8 @@ pub fn make_fixtures() -> (tempfile::TempDir, Fixtures) {
     let plain = p("plain.pdf");
     qpdf(&["--encrypt", "secret", "secret", "256", "--", &plain, &p("aes256.pdf")]);
     qpdf(&["--encrypt", "secret", "secret", "128", "--use-aes=y", "--", &plain, &p("aes128.pdf")]);
-    qpdf(&["--encrypt", "secret", "secret", "128", "--use-aes=n", "--", "--allow-weak-crypto", &plain, &p("rc4_128.pdf")]);
+    // qpdf 12+ refuses RC4 unless --allow-weak-crypto is passed as a global option (before --encrypt).
+    qpdf(&["--allow-weak-crypto", "--encrypt", "secret", "secret", "128", "--use-aes=n", "--", &plain, &p("rc4_128.pdf")]);
 
     let corrupt = dir.path().join("corrupt.pdf");
     std::fs::write(&corrupt, b"%PDF-1.4\nthis is not a valid pdf body at all\n").unwrap();

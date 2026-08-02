@@ -26,6 +26,14 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DEST="$REPO_ROOT/src-tauri/binaries"
 TRIPLE="aarch64-apple-darwin"
 
+# Check for qpdf BEFORE touching the destination, so a missing-qpdf run can't
+# wipe an existing (still-valid) vendored set before failing.
+if ! command -v qpdf >/dev/null 2>&1; then
+  echo "error: qpdf not found on PATH — install it with: brew install qpdf" >&2
+  exit 1
+fi
+SRC_QPDF="$(command -v qpdf)"
+
 # Always start from a clean directory. Without this, re-running after e.g.
 # `brew upgrade openssl@3` would silently keep the stale libcrypto.3.dylib
 # (its basename carries no patch version, so a newer copy wouldn't overwrite
@@ -34,12 +42,6 @@ TRIPLE="aarch64-apple-darwin"
 # beforeBuildCommand regeneration in tauri.conf.json deterministic.
 rm -rf "$DEST"
 mkdir -p "$DEST"
-
-if ! command -v qpdf >/dev/null 2>&1; then
-  echo "error: qpdf not found on PATH — install it with: brew install qpdf" >&2
-  exit 1
-fi
-SRC_QPDF="$(command -v qpdf)"
 # Resolve through symlinks (Homebrew's /opt/homebrew/bin/qpdf is a symlink
 # into the Cellar) so we copy the real Mach-O binary.
 SRC_QPDF="$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$SRC_QPDF")"
