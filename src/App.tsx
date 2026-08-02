@@ -122,7 +122,7 @@ function App() {
         <p className="eyebrow">Local &middot; on-device &middot; no upload</p>
         <h1>PDFUnlock</h1>
         <p className="subtitle">
-          Strips passwords from PDF files. Nothing ever leaves this Mac.
+          Strips passwords from PDF files. Nothing ever leaves your device.
         </p>
       </header>
 
