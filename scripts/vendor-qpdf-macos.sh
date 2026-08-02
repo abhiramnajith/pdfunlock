@@ -24,7 +24,14 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DEST="$REPO_ROOT/src-tauri/binaries"
-TRIPLE="aarch64-apple-darwin"
+
+# Derive the Rust target triple from the host arch so this works on both
+# Apple Silicon and Intel runners (must match release.yml's rust_target).
+case "$(uname -m)" in
+  arm64|aarch64) TRIPLE="aarch64-apple-darwin" ;;
+  x86_64)        TRIPLE="x86_64-apple-darwin" ;;
+  *) echo "error: unsupported macOS arch $(uname -m)" >&2; exit 1 ;;
+esac
 
 # Check for qpdf BEFORE touching the destination, so a missing-qpdf run can't
 # wipe an existing (still-valid) vendored set before failing.
