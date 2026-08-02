@@ -6,13 +6,20 @@ use std::process::Stdio;
 #[derive(Debug)]
 pub struct EngineError(pub String);
 
+/// Filename of the bundled qpdf sidecar. Windows executables carry a `.exe`
+/// extension, and Rust does not auto-append it to an explicit path (unlike a
+/// bare-name PATH lookup, which does via PATHEXT).
+fn sidecar_qpdf_name() -> &'static str {
+    if cfg!(windows) { "qpdf.exe" } else { "qpdf" }
+}
+
 pub fn resolve_qpdf() -> PathBuf {
     if let Ok(p) = std::env::var("PDFUNLOCK_QPDF") {
         return PathBuf::from(p);
     }
     if let Ok(exe) = std::env::current_exe() {
         if let Some(dir) = exe.parent() {
-            let sidecar = dir.join("qpdf");
+            let sidecar = dir.join(sidecar_qpdf_name());
             if sidecar.exists() {
                 return sidecar;
             }
@@ -87,5 +94,18 @@ pub fn decrypt(qpdf: &Path, input: &Path, output: &Path, password: &str) -> Resu
     } else {
         let _ = std::fs::remove_file(output);
         Err(DecryptError::Engine(String::from_utf8_lossy(&out.stderr).into_owned()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sidecar_binary_name_is_platform_correct() {
+        assert_eq!(
+            sidecar_qpdf_name(),
+            if cfg!(windows) { "qpdf.exe" } else { "qpdf" }
+        );
     }
 }
