@@ -25,8 +25,20 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DEST="$REPO_ROOT/src-tauri/binaries"
 TRIPLE="aarch64-apple-darwin"
+
+# Always start from a clean directory. Without this, re-running after e.g.
+# `brew upgrade openssl@3` would silently keep the stale libcrypto.3.dylib
+# (its basename carries no patch version, so a newer copy wouldn't overwrite
+# a mismatched old one) — and a stale/mismatched vendored set is exactly the
+# kind of bug that's invisible until runtime. This also makes the
+# beforeBuildCommand regeneration in tauri.conf.json deterministic.
+rm -rf "$DEST"
 mkdir -p "$DEST"
 
+if ! command -v qpdf >/dev/null 2>&1; then
+  echo "error: qpdf not found on PATH — install it with: brew install qpdf" >&2
+  exit 1
+fi
 SRC_QPDF="$(command -v qpdf)"
 # Resolve through symlinks (Homebrew's /opt/homebrew/bin/qpdf is a symlink
 # into the Cellar) so we copy the real Mach-O binary.
