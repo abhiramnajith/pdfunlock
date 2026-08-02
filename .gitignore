@@ -25,3 +25,7 @@ dist-ssr
 
 # SDD scratch workspace (git-ignored)
 /.superpowers/
+
+# Vendored qpdf sidecar + dylibs (large, machine-specific Homebrew builds;
+# regenerate with scripts/vendor-qpdf.sh before `tauri build`)
+/src-tauri/binaries/
