@@ -37,6 +37,12 @@ jobs:
       - run: npm ci
       - name: Frontend tests
         run: npm test
+      # tauri-build's build script validates that the frontend dist and the
+      # qpdf externalBin exist, so produce both before compiling the crate.
+      - name: Build frontend + vendor qpdf sidecar
+        run: |
+          npm run build
+          bash scripts/prepare-qpdf-sidecar.sh
       - name: Rust tests
         run: cargo test --locked --manifest-path src-tauri/Cargo.toml
       - name: npm audit (report-only)
