@@ -1,6 +1,6 @@
 [package]
 name = "pdfunlock"
-version = "0.1.1"
+version = "0.1.2"
 description = "Remove passwords from PDFs you know the password to"
 authors = ["abhiramnajith"]
 license-file = "../LICENSE"
