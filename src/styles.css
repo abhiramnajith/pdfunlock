@@ -331,12 +331,36 @@ button:focus-visible {
 
 .rows-summary {
   margin: 0 0 0.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   font-family: var(--font-mono);
   font-size: 0.74rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink-faint);
+}
+
+.rows-actions {
+  display: flex;
+  gap: 0.4rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.rows-actions .ghost-button {
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+}
+
+.notice {
+  margin: -0.4rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  text-align: center;
 }
 
 .empty-state {
