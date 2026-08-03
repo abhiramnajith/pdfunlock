@@ -1,5 +1,5 @@
 {
   "bundle": {
-    "resources": ["binaries/*.dll"]
+    "resources": { "binaries/*.dll": "./" }
   }
 }

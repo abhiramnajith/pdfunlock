@@ -45,8 +45,25 @@ pub fn resolve_qpdf() -> PathBuf {
     PathBuf::from("qpdf")
 }
 
+/// Construct a `Command` for the qpdf sidecar with the platform tweaks it needs.
+fn qpdf_command(qpdf: &Path) -> Command {
+    // `mut` is only exercised on Windows (the block below is cfg'd out elsewhere).
+    #[cfg_attr(not(windows), allow(unused_mut))]
+    let mut cmd = Command::new(qpdf);
+    // On Windows the child process inherits PATH as part of the DLL search
+    // order, so prepend the sidecar's own directory. This guarantees qpdf.exe
+    // finds qpdf30.dll + the MSVC runtime that sit beside it, independent of
+    // how the bundler laid out `resources` vs `externalBin`.
+    #[cfg(windows)]
+    if let Some(dir) = qpdf.parent() {
+        let existing = std::env::var("PATH").unwrap_or_default();
+        cmd.env("PATH", format!("{};{}", dir.display(), existing));
+    }
+    cmd
+}
+
 pub fn is_encrypted(qpdf: &Path, input: &Path) -> Result<bool, EngineError> {
-    let out = Command::new(qpdf)
+    let out = qpdf_command(qpdf)
         .arg("--is-encrypted")
         .arg(input)
         .output()
@@ -66,7 +83,7 @@ pub enum DecryptError {
 }
 
 pub fn decrypt(qpdf: &Path, input: &Path, output: &Path, password: &str) -> Result<(), DecryptError> {
-    let mut child = Command::new(qpdf)
+    let mut child = qpdf_command(qpdf)
         .arg("--warning-exit-0")
         .arg("--password-file=-")
         .arg("--decrypt")
