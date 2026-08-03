@@ -71,6 +71,33 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+      # Run the qpdf sidecar from its PACKAGED location — not src-tauri/binaries/,
+      # where the libs sit beside it and mask DLL/.so co-location bugs. This is
+      # what catches P0-1 (Windows DLLs) and P1-4 (Linux .so rpath).
+      - name: Smoke-test bundled qpdf (macOS)
+        if: startsWith(matrix.os, 'macos')
+        shell: bash
+        run: |
+          app="src-tauri/target/${{ matrix.rust_target }}/release/bundle/macos/pdfunlock.app"
+          "$app/Contents/MacOS/pdfunlock-qpdf" --version
+      - name: Smoke-test bundled qpdf (Linux)
+        if: startsWith(matrix.os, 'ubuntu')
+        shell: bash
+        run: |
+          deb=$(find src-tauri/target -name '*.deb' | head -1)
+          echo "extracting $deb"
+          dpkg-deb -x "$deb" "$RUNNER_TEMP/ext"
+          "$RUNNER_TEMP/ext/usr/bin/pdfunlock-qpdf" --version
+      - name: Smoke-test bundled qpdf (Windows)
+        if: startsWith(matrix.os, 'windows')
+        shell: pwsh
+        run: |
+          $msi = Get-ChildItem -Recurse -Path src-tauri/target -Filter *.msi | Select-Object -First 1
+          $dest = "$env:RUNNER_TEMP\ext"
+          Start-Process msiexec -ArgumentList "/a `"$($msi.FullName)`" /qn TARGETDIR=`"$dest`"" -Wait
+          $exe = Get-ChildItem -Recurse -Path $dest -Filter pdfunlock-qpdf.exe | Select-Object -First 1
+          & $exe.FullName --version
+          if ($LASTEXITCODE -ne 0) { throw "bundled qpdf.exe failed to run (exit $LASTEXITCODE)" }
 
   checksums:
     name: Checksums + provenance
