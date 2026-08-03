@@ -57,9 +57,15 @@ fn qpdf_command(qpdf: &Path) -> Command {
     // finds qpdf30.dll + the MSVC runtime that sit beside it, independent of
     // how the bundler laid out `resources` vs `externalBin`.
     #[cfg(windows)]
-    if let Some(dir) = qpdf.parent() {
-        let existing = std::env::var("PATH").unwrap_or_default();
-        cmd.env("PATH", format!("{};{}", dir.display(), existing));
+    {
+        use std::os::windows::process::CommandExt;
+        // Don't flash a console window for each qpdf invocation.
+        const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+        cmd.creation_flags(CREATE_NO_WINDOW);
+        if let Some(dir) = qpdf.parent() {
+            let existing = std::env::var("PATH").unwrap_or_default();
+            cmd.env("PATH", format!("{};{}", dir.display(), existing));
+        }
     }
     cmd
 }
