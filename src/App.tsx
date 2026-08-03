@@ -4,13 +4,8 @@ import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { open } from "@tauri-apps/plugin-dialog";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import type { Row } from "./unlock";
-import { unlockOne } from "./unlock";
+import { unlockOne, queuePaths } from "./unlock";
 import "./styles.css";
-
-function nameFromPath(path: string): string {
-  const parts = path.split(/[/\\]/);
-  return parts[parts.length - 1] || path;
-}
 
 const STATUS_LABEL: Record<Row["status"], string> = {
   ready: "Ready",
@@ -44,26 +39,16 @@ function App() {
   const [showPassword, setShowPassword] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const rowsRef = useRef(rows);
   rowsRef.current = rows;
 
   const addPaths = useCallback((paths: string[]) => {
-    setRows((prev) => {
-      const existing = new Set(prev.map((r) => r.path));
-      const next: Row[] = [...prev];
-      for (const path of paths) {
-        if (!path.toLowerCase().endsWith(".pdf")) continue;
-        if (existing.has(path)) continue;
-        existing.add(path);
-        next.push({
-          id: crypto.randomUUID(),
-          path,
-          name: nameFromPath(path),
-          status: "ready",
-        });
-      }
-      return next;
-    });
+    const ignored = paths.filter((p) => !p.toLowerCase().endsWith(".pdf")).length;
+    setNotice(
+      ignored > 0 ? `Ignored ${ignored} non-PDF file${ignored > 1 ? "s" : ""}.` : null,
+    );
+    setRows((prev) => queuePaths(prev, paths).rows);
   }, []);
 
   useEffect(() => {
@@ -97,6 +82,22 @@ function App() {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
   }
 
+  function retryRow(id: string) {
+    patchRow(id, { status: "ready", detail: undefined, outputPath: undefined });
+  }
+
+  // Drop terminal rows (done / skipped / error), keep ready + in-flight ones.
+  function clearFinished() {
+    setRows((prev) =>
+      prev.filter((r) => r.status === "ready" || r.status === "working"),
+    );
+  }
+
+  function clearAll() {
+    setRows([]);
+    setNotice(null);
+  }
+
   async function unlockAll() {
     if (isProcessing) return;
     setIsProcessing(true);
@@ -114,6 +115,9 @@ function App() {
 
   const readyCount = rows.filter((r) => r.status === "ready").length;
   const doneCount = rows.filter((r) => r.status === "done").length;
+  const finishedCount = rows.filter(
+    (r) => r.status === "done" || r.status === "skipped" || r.status === "error",
+  ).length;
   const canUnlock = readyCount > 0 && password.length > 0 && !isProcessing;
 
   return (
@@ -136,6 +140,8 @@ function App() {
           Browse&hellip;
         </button>
       </section>
+
+      {notice && <p className="notice" role="status">{notice}</p>}
 
       <section className="password-row">
         <label htmlFor="password-input" className="field-label">
@@ -177,9 +183,31 @@ function App() {
             No files queued yet &mdash; drop a PDF above to get started.
           </p>
         ) : (
-          <p className="rows-summary">
-            {rows.length} queued &middot; {doneCount} done
-          </p>
+          <div className="rows-summary">
+            <span>
+              {rows.length} queued &middot; {doneCount} done
+            </span>
+            <span className="rows-actions">
+              {finishedCount > 0 && (
+                <button
+                  type="button"
+                  className="ghost-button"
+                  disabled={isProcessing}
+                  onClick={clearFinished}
+                >
+                  Clear finished
+                </button>
+              )}
+              <button
+                type="button"
+                className="ghost-button"
+                disabled={isProcessing}
+                onClick={clearAll}
+              >
+                Clear all
+              </button>
+            </span>
+          </div>
         )}
         {rows.map((row) => (
           <div className="file-row" key={row.id}>
@@ -189,14 +217,27 @@ function App() {
             <span className={`status-pill status-pill--${row.status}`}>
               {STATUS_LABEL[row.status]}
             </span>
-            {row.detail && <span className="file-detail">{row.detail}</span>}
+            {row.detail && (
+              <span className="file-detail" title={row.detail}>
+                {row.detail}
+              </span>
+            )}
             {row.status === "done" && row.outputPath && (
               <button
                 type="button"
                 className="ghost-button"
                 onClick={() => revealItemInDir(row.outputPath!)}
               >
-                Reveal in Finder
+                Reveal
+              </button>
+            )}
+            {(row.status === "error" || row.status === "skipped") && (
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={() => retryRow(row.id)}
+              >
+                Retry
               </button>
             )}
           </div>
