@@ -11,13 +11,21 @@ export type Row = {
 
 export type InvokeFn = (cmd: string, args: Record<string, unknown>) => Promise<unknown>;
 
-export function errorMessage(e: UnlockError): string {
-  switch (e.kind) {
+const nonEmpty = (m: string | undefined, fallback: string) =>
+  m && m.trim() ? m.trim() : fallback;
+
+export function errorMessage(e: unknown): string {
+  // invoke() can reject with a plain string (IPC/serialization/permission
+  // failures) or an Error, not just a structured UnlockError — handle all three.
+  if (typeof e === "string") return nonEmpty(e, "Unexpected error");
+  if (e instanceof Error) return nonEmpty(e.message, "Unexpected error");
+  const err = e as Partial<UnlockError> | null;
+  switch (err?.kind) {
     case "WrongPassword": return "Incorrect password";
     case "Corrupt": return "Could not read PDF";
-    case "Io": return e.message ?? "File error";
-    case "Engine": return e.message ?? "Unexpected error";
-    default: return "Unexpected error";
+    case "Io": return nonEmpty(err.message, "File error");
+    case "Engine": return nonEmpty(err.message, "Unexpected error");
+    default: return nonEmpty(err?.message, "Unexpected error");
   }
 }
 
@@ -33,6 +41,6 @@ export async function unlockOne(
     }
     return { status: "skipped", detail: "Not password-protected — skipped" };
   } catch (raw) {
-    return { status: "error", detail: errorMessage(raw as UnlockError) };
+    return { status: "error", detail: errorMessage(raw) };
   }
 }

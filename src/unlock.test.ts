@@ -27,4 +27,27 @@ describe("errorMessage", () => {
   it("has friendly text per kind", () => {
     expect(errorMessage({ kind: "Corrupt" })).toMatch(/read/i);
   });
+
+  it("never returns an empty string for an empty Engine message", () => {
+    const msg = errorMessage({ kind: "Engine", message: "" });
+    expect(msg.trim().length).toBeGreaterThan(0);
+  });
+
+  it("never returns empty for a whitespace-only Io message", () => {
+    const msg = errorMessage({ kind: "Io", message: "   " });
+    expect(msg.trim().length).toBeGreaterThan(0);
+  });
+
+  it("passes a plain string throw through", () => {
+    expect(errorMessage("boom from IPC")).toBe("boom from IPC");
+  });
+
+  it("uses an Error's message", () => {
+    expect(errorMessage(new Error("kaboom"))).toBe("kaboom");
+  });
+
+  it("falls back to a message on a shapeless object", () => {
+    expect(errorMessage({ message: "raw detail" })).toBe("raw detail");
+    expect(errorMessage({}).trim().length).toBeGreaterThan(0);
+  });
 });
