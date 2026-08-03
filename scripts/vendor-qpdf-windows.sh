@@ -31,7 +31,7 @@ qpdf_exe="$(find "$tmp/extracted" -name qpdf.exe -print -quit)"
 [ -n "$qpdf_exe" ] || { echo "error: qpdf.exe not found in $QPDF_ZIP" >&2; exit 1; }
 bindir="$(dirname "$qpdf_exe")"
 
-cp "$qpdf_exe" "$DEST/qpdf-x86_64-pc-windows-msvc.exe"
+cp "$qpdf_exe" "$DEST/pdfunlock-qpdf-x86_64-pc-windows-msvc.exe"
 cp "$bindir"/*.dll "$DEST"/ 2>/dev/null || true
 
 echo "Vendored Windows qpdf sidecar into $DEST:"

@@ -31,6 +31,6 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "externalBin": ["binaries/qpdf"]
+    "externalBin": ["binaries/pdfunlock-qpdf"]
   }
 }

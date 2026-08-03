@@ -23,11 +23,13 @@ fn engine_message(stderr: &[u8], status: std::process::ExitStatus) -> String {
     }
 }
 
-/// Filename of the bundled qpdf sidecar. Windows executables carry a `.exe`
-/// extension, and Rust does not auto-append it to an explicit path (unlike a
-/// bare-name PATH lookup, which does via PATHEXT).
+/// Filename of the bundled qpdf sidecar. Namespaced as `pdfunlock-qpdf` so the
+/// Linux packages don't install a bare `/usr/bin/qpdf` that collides with the
+/// distro `qpdf` package. Windows executables carry a `.exe` extension, and
+/// Rust does not auto-append it to an explicit path (unlike a bare-name PATH
+/// lookup, which does via PATHEXT).
 fn sidecar_qpdf_name() -> &'static str {
-    if cfg!(windows) { "qpdf.exe" } else { "qpdf" }
+    if cfg!(windows) { "pdfunlock-qpdf.exe" } else { "pdfunlock-qpdf" }
 }
 
 pub fn resolve_qpdf() -> PathBuf {
@@ -139,7 +141,7 @@ mod tests {
     fn sidecar_binary_name_is_platform_correct() {
         assert_eq!(
             sidecar_qpdf_name(),
-            if cfg!(windows) { "qpdf.exe" } else { "qpdf" }
+            if cfg!(windows) { "pdfunlock-qpdf.exe" } else { "pdfunlock-qpdf" }
         );
     }
 

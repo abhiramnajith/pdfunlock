@@ -53,7 +53,7 @@ mkdir -p "$DEST"
 # into the Cellar) so we copy the real Mach-O binary.
 SRC_QPDF="$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$SRC_QPDF")"
 
-DST_QPDF="$DEST/qpdf-$TRIPLE"
+DST_QPDF="$DEST/pdfunlock-qpdf-$TRIPLE"
 cp "$SRC_QPDF" "$DST_QPDF"
 chmod u+w "$DST_QPDF"
 

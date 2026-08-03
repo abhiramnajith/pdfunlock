@@ -26,8 +26,9 @@ esac
 
 rm -rf "$DEST"; mkdir -p "$DEST"
 SRC_QPDF="$(command -v qpdf)"
-cp "$SRC_QPDF" "$DEST/qpdf-$TRIPLE"
-chmod u+w "$DEST/qpdf-$TRIPLE"
+DST_QPDF="$DEST/pdfunlock-qpdf-$TRIPLE"
+cp "$SRC_QPDF" "$DST_QPDF"
+chmod u+w "$DST_QPDF"
 
 # Copy every non-system shared library qpdf depends on. Exclude the core
 # system set that is always present on a target machine (libc, libm, the
@@ -48,9 +49,15 @@ ldd "$SRC_QPDF" | awk '/=>/ {print $3} !/=>/ && /^\// {print $1}' | while read -
   fi
 done
 
-# Point the qpdf binary at its co-located libs.
-patchelf --set-rpath '$ORIGIN' "$DEST/qpdf-$TRIPLE"
+# The sidecar (externalBin) installs to <prefix>/bin/pdfunlock-qpdf, but Tauri
+# puts the vendored .so files (resources) under <prefix>/lib/pdfunlock/binaries/
+# — a different tree. So the binary needs two rpath entries:
+#   $ORIGIN                          — running it standalone from src-tauri/binaries/
+#                                      (and any layout that co-locates the libs)
+#   $ORIGIN/../lib/pdfunlock/binaries — the installed deb/rpm/AppImage layout
+# The .so files themselves stay $ORIGIN since they're always co-located.
+patchelf --set-rpath '$ORIGIN:$ORIGIN/../lib/pdfunlock/binaries' "$DST_QPDF"
 
 echo "Vendored Linux qpdf sidecar into $DEST:"
 ls -la "$DEST"
-"$DEST/qpdf-$TRIPLE" --version
+"$DST_QPDF" --version
