@@ -37,6 +37,12 @@ bundled inside every download — there's nothing else to install.
 
 Builds are **not code-signed**, hence the one-time OS warning above.
 
+> **Linux requirements:** Ubuntu 22.04+, Debian 12+, or Fedora 36+ (needs
+> glibc 2.35+ and webkit2gtk-4.1). Ubuntu 20.04 and older are **not supported** —
+> this is a hard requirement of the underlying webview (Tauri v2 dropped
+> webkit2gtk-4.0), not something the app can work around. On x86-64 grab
+> `*_amd64.*`; on arm64 grab `*_arm64.deb`/`*_arm64.rpm` or `*_aarch64.AppImage`.
+
 ### Verify your download (recommended)
 
 Every release includes a `SHA256SUMS` file and signed build-provenance

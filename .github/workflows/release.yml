@@ -21,11 +21,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # The Linux runner images define the app's glibc floor. Both ubuntu-22.04
+        # images give glibc 2.35 (the oldest distro with webkit2gtk-4.1, which
+        # Tauri v2 requires). Bumping either to 24.04 silently raises the floor to
+        # glibc 2.39 and breaks every 22.04 user with `GLIBC_x.xx not found` —
+        # keep both Linux arches on the SAME image. See README "Linux requirements".
         include:
           - { os: macos-14, rust_target: aarch64-apple-darwin, args: "--target aarch64-apple-darwin" }
           - { os: macos-15-intel, rust_target: x86_64-apple-darwin, args: "--target x86_64-apple-darwin" }
           - { os: ubuntu-22.04, rust_target: x86_64-unknown-linux-gnu, args: "" }
-          - { os: ubuntu-24.04-arm, rust_target: aarch64-unknown-linux-gnu, args: "" }
+          - { os: ubuntu-22.04-arm, rust_target: aarch64-unknown-linux-gnu, args: "" }
           - { os: windows-latest, rust_target: x86_64-pc-windows-msvc, args: "" }
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60

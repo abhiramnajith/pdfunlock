@@ -29,7 +29,16 @@
 
 ## Linux
 
-Pick the format for your distro. Swap `amd64`/`x86_64` for `arm64`/`aarch64` on ARM machines.
+**Requires Ubuntu 22.04+, Debian 12+, or Fedora 36+** (glibc 2.35+ and webkit2gtk-4.1). Older distros like Ubuntu 20.04 are not supported.
+
+Pick the file for your CPU architecture (`uname -m`):
+
+| `uname -m` | Download |
+|---|---|
+| `x86_64` | `*_amd64.deb` · `*_amd64.AppImage` · `*.x86_64.rpm` |
+| `aarch64` | `*_arm64.deb` · `*_aarch64.AppImage` · `*.aarch64.rpm` |
+
+Then pick the format for your distro:
 
 **AppImage** (most distros, no install):
 ```bash
